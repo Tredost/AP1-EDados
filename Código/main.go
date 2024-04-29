@@ -19,12 +19,12 @@ type Produto struct {
 type Pedido struct {
 	ID          int                    `json:"id"`
 	Delivery    bool                   `json:"delivery"`
-	Produtos    []QuantidadeProduto    `json:"produtos"`  // ver se ta certo 
+	Produtos    []QuantidadeProduto    `json:"produtos"`  
 	ValorTotal  float64                `json:"valor_total"`
 }
 
 type QuantidadeProduto struct {
-	ID         int `json:"id"`  // puxa produto ver se ta certo
+	ID         int `json:"id"` 
 	Quantidade int `json:"quantidade"`
 }
 
@@ -35,15 +35,15 @@ type Métricas struct {
 	FaturamentoTotal   float64 `json:"faturamento_total"`
 }
 
-type ListaProdutos []Produto  // ver se isso ta certo
+type ListaProdutos []Produto  // ver de fzr um sruct
 
-type FilaPedidos []Pedido // ver se isso ta certo
+type FilaPedidos []Pedido // ver de fzr um sruct
 
 var (
 	listaProdutos ListaProdutos
 	filaPedidos   FilaPedidos
-	produtoID     int = 1 // ver se ta certo
-	pedidoID      int = 1 // ver se ta certo
+	produtoID     int = 1 
+	pedidoID      int = 1 
 	métricas      Métricas
 	lojaAberta    bool
 )
@@ -155,12 +155,6 @@ func handleIncluirPedido(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !lojaAberta { 
-		fmt.Fprintln(w, "Loja não está aberta")
-		return 
-	} // VER COM O VICTOR
-
-	// quantidades do item calcucolo
 	var valorTotal float64
 	for _, qp := range pedido.Produtos {
 		produto, encontrado := listaProdutos.BuscarProdutoByID(qp.ID)
