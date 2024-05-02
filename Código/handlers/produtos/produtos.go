@@ -10,16 +10,7 @@ import (
 )
 
 func handleAdicionarProduto(w http.ResponseWriter, r *http.Request) {
-	var produto Produto
-	err := json.NewDecoder(r.Body).Decode(&produto)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	produto.ID = produtoID
-	produtoID++
-	listaProdutos.AdicionarProduto(produto)
-	w.WriteHeader(http.StatusCreated)
+	AdicionarProduto(w, r)
 }
 
 func handleObterProduto(w http.ResponseWriter, r *http.Request) {
