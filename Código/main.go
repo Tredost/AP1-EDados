@@ -3,19 +3,21 @@ package main
 import (
 	"net/http"
 
+	p "IANZINHO/processamento"
+
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/produto", produtos.AdicionarProduto).Methods("POST")
-	r.HandleFunc("/produto/{id}", produtos.ObterProduto).Methods("GET")
-	r.HandleFunc("/produto/{id}", produtos.RemoverProduto).Methods("DELETE")
-	r.HandleFunc("/produtos", produtos.ObterTodosProdutos).Methods("GET")
-	r.HandleFunc("/pedido", pedidos.IncluirPedido).Methods("POST")
-	r.HandleFunc("/pedidos", pedidos.ObterPedidosAtivos).Methods("GET")
-	r.HandleFunc("/abrir", loja.AbrirLoja).Methods("POST")
-	r.HandleFunc("/fechar", loja.FecharLoja).Methods("POST")
-	r.HandleFunc("/metricas", metricas.ObterMétricas).Methods("GET")
+	r.HandleFunc("/produto", p.AdicionarProduto).Methods("POST")
+	r.HandleFunc("/produto/{id}", p.ObterProduto).Methods("GET")
+	r.HandleFunc("/produto/{id}", p.RemoverProduto).Methods("DELETE")
+	r.HandleFunc("/produtos", p.ObterTodosProdutos).Methods("GET")
+	r.HandleFunc("/pedido", p.IncluirPedido).Methods("POST")
+	r.HandleFunc("/pedidos", p.ObterPedidosAtivos).Methods("GET")
+	r.HandleFunc("/abrir", p.AbrirLoja).Methods("POST")
+	r.HandleFunc("/fechar", p.FecharLoja).Methods("POST")
+	r.HandleFunc("/metricas", p.ObterMetricas).Methods("GET")
 	http.ListenAndServe(":8080", r)
 }

@@ -1,4 +1,4 @@
-package pedido
+package IANZINHO
 
 type Pedido struct {
 	ID         int                 `json:"id"`

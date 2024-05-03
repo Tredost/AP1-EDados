@@ -1,4 +1,4 @@
-package processamento
+package IANZINHO
 
 import (
 	"encoding/json"
@@ -7,12 +7,23 @@ import (
 	"strconv"
 	"time"
 
+	m "IANZINHO/modelos/metricas"
+	pe "IANZINHO/modelos/pedido"
+	pr "IANZINHO/modelos/produto"
+
 	"github.com/gorilla/mux"
 )
 
-//loja
+var (
+	ListaProdutos pr.ListaProdutos
+	FilaPedidos   pe.FilaPedidos
+	ProdutoID     int = 1
+	PedidoID      int = 1
+	Metricas      m.Metricas
+	LojaAberta    bool
+)
 
-var LojaAberta bool
+//loja
 
 func AbrirLoja(w http.ResponseWriter, r *http.Request) {
 	LojaAberta = true
@@ -27,20 +38,20 @@ func FecharLoja(w http.ResponseWriter, r *http.Request) {
 
 // metricas
 
-func ObterMetricas(w http.ResponseWriter, r *http.Request, metricas *Metricas) {
-	AtualizarMetricas(metricas)
-	json.NewEncoder(w).Encode(metricas)
+func ObterMetricas(w http.ResponseWriter, r *http.Request) {
+	AtualizarMetricas()
+	json.NewEncoder(w).Encode(Metricas)
 }
 
-func AtualizarMetricas(metricas *Metricas) {
-	metricas.TotalProdutos = len(ListaProdutos)
-	metricas.PedidosAndamento = len(FilaPedidos)
+func AtualizarMetricas() { // PQ N VAAAAAAAAAAAAAAAAAAAAAIIIIIIIII
+	Metricas.TotalProdutos = len(ListaProdutos)
+	Metricas.PedidosAndamento = len(FilaPedidos)
 }
 
 //pedidos
 
-func IncluirPedido(w http.ResponseWriter, r *http.Request, metricas *Metricas) {
-	var pedido Pedido
+func IncluirPedido(w http.ResponseWriter, r *http.Request) {
+	var pedido pe.Pedido
 	err := json.NewDecoder(r.Body).Decode(&pedido)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -57,16 +68,16 @@ func IncluirPedido(w http.ResponseWriter, r *http.Request, metricas *Metricas) {
 		valorTotal += produto.Valor * float64(qp.Quantidade)
 	}
 
-	pedido.ID = pedidoID
-	pedidoID++
+	pedido.ID = PedidoID
+	PedidoID++
 
 	if pedido.Delivery {
 		valorTotal += 10
 	}
 	pedido.ValorTotal = valorTotal
 
-	FilaPedidos.IncluirPedido(pedido)
-	metricas.FaturamentoTotal += pedido.ValorTotal
+	FilaPedidos.IncluirPedido(pedido) //ERRADOOOOOOOOOOOOOOOOO
+	Metricas.FaturamentoTotal += pedido.ValorTotal
 
 	w.WriteHeader(http.StatusCreated)
 }
@@ -93,7 +104,7 @@ func ExpedirPedidos() {
 // produtos
 
 func AdicionarProduto(w http.ResponseWriter, r *http.Request) {
-	var Produto Produto
+	var Produto pr.Produto
 	err := json.NewDecoder(r.Body).Decode(&Produto)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -113,7 +124,7 @@ func ObterProduto(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
-	produto, encontrado := ListaProdutos.BuscarProdutoByID(id)
+	produto, encontrado := ListaProdutos.BuscarProdutoByID(id) //TA ERRADO
 	if !encontrado {
 		http.Error(w, "Produto não encontrado", http.StatusNotFound)
 		return
@@ -140,4 +151,30 @@ func ObterTodosProdutos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewEncoder(w).Encode(produtos)
+}
+
+// fila de pedidos
+
+func (fp *pe.FilaPedidos) IncluirPedido(pedido pe.Pedido) {
+	fp.Pedidos = append(fp.Pedidos, pedido)
+}
+
+func (fp *pe.FilaPedidos) ExpedirPedido() {
+	for LojaAberta {
+		pedidosAtivos := FilaPedidos.PedidosEmAberto()
+		if len(pedidosAtivos) > 0 {
+			time.Sleep(30 * time.Second)
+			FilaPedidos.ExpedirPedido()
+		}
+	}
+}
+
+func (lp pe.FilaPedidos) PedidosEmAberto() []pe.Pedido {
+	var pedidosAbertos []pe.Pedido
+	for _, pedido := range lp.Pedidos {
+		if pedido.Delivery || len(pedido.Produtos) > 0 {
+			pedidosAbertos = append(pedidosAbertos, pedido)
+		}
+	}
+	return pedidosAbertos
 }

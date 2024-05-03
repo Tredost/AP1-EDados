@@ -1,10 +1,10 @@
-package metricas
+package IANZINHO
 
 import (
+	p "IANZINHO/processamento"
 	"net/http"
-	//IMPORTAR PROCESSAMENTO
 )
 
-func HandleObterMetricas(w http.ResponseWriter, r *http.Request, metricas *Metricas) {
-	ObterMetricas(w, r, metricas)
+func HandleObterMetricas(w http.ResponseWriter, r *http.Request) {
+	p.ObterMetricas(w, r)
 }

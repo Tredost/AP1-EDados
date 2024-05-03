@@ -1,18 +1,18 @@
-package produtos
+package IANZINHO
 
 import (
+	p "IANZINHO/processamento"
 	"net/http"
-	//IMPORTAR PROCESSAMENTO
 )
 
 func HandleAdicionarProduto(w http.ResponseWriter, r *http.Request) {
-	AdicionarProduto(w, r)
+	p.AdicionarProduto(w, r)
 }
 
 func handleObterProduto(w http.ResponseWriter, r *http.Request) {
-	ObterProduto(w, r)
+	p.ObterProduto(w, r)
 }
 
 func handleObterTodosProdutos(w http.ResponseWriter, r *http.Request) {
-	ObterTodosProdutos(w, r)
+	p.ObterTodosProdutos(w, r)
 }
