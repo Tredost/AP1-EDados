@@ -1,20 +1,14 @@
 package loja
 
 import (
-	"fmt"
 	"net/http"
-	//m "IANZINHO/Código/modelos/pedido/pedido"  PQ NÃO VAAAAAAAAAAAAAAAAAAIIII
+	// IMPORTAR PROCESSAMENTO
 )
 
-var lojaAberta bool
-
-func handleAbrirLoja(w http.ResponseWriter, r *http.Request) {
-	lojaAberta = true
-	go m.expedirPedidos()
-	fmt.Fprintln(w, "Loja aberta")
+func HandleAbrirLoja(w http.ResponseWriter, r *http.Request) {
+	AbrirLoja(w, r)
 }
 
-func handleFecharLoja(w http.ResponseWriter, r *http.Request) {
-	lojaAberta = false
-	fmt.Fprintln(w, "Loja fechada")
+func HandleFecharLoja(w http.ResponseWriter, r *http.Request) {
+	FecharLoja(w, r)
 }

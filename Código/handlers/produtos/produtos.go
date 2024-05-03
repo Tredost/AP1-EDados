@@ -1,51 +1,18 @@
 package produtos
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
-	"strconv"
-
-	"github.com/gorilla/mux"
+	//IMPORTAR PROCESSAMENTO
 )
 
-func handleAdicionarProduto(w http.ResponseWriter, r *http.Request) {
+func HandleAdicionarProduto(w http.ResponseWriter, r *http.Request) {
 	AdicionarProduto(w, r)
 }
 
 func handleObterProduto(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	idStr := vars["id"]
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "ID inválido", http.StatusBadRequest)
-		return
-	}
-	produto, encontrado := listaProdutos.BuscarProdutoByID(id)
-	if !encontrado {
-		http.Error(w, "Produto não encontrado", http.StatusNotFound)
-		return
-	}
-	json.NewEncoder(w).Encode(produto)
-}
-
-func handleRemoverProduto(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	idStr := vars["id"]
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "ID inválido", http.StatusBadRequest)
-		return
-	}
-	listaProdutos.RemoverProduto(id)
-	w.WriteHeader(http.StatusNoContent)
+	ObterProduto(w, r)
 }
 
 func handleObterTodosProdutos(w http.ResponseWriter, r *http.Request) {
-	produtos := listaProdutos.ListarProdutos()
-	if len(produtos) == 0 {
-		fmt.Fprintln(w, "Não há produtos cadastrados")
-		return
-	}
-	json.NewEncoder(w).Encode(produtos)
+	ObterTodosProdutos(w, r)
 }

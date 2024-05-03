@@ -1,19 +1,10 @@
 package metricas
 
 import (
-	"encoding/json"
-	m "modelos/metricas/metricas"
 	"net/http"
+	//IMPORTAR PROCESSAMENTO
 )
 
-var metricas m.Metricas
-
-func handleObterMétricas(w http.ResponseWriter, r *http.Request) {
-	atualizarMétricas()
-	json.NewEncoder(w).Encode(metricas)
-}
-
-func atualizarMétricas() {
-	metricas.TotalProdutos = len(listaProdutos)
-	metricas.PedidosAndamento = len(filaPedidos)
+func HandleObterMetricas(w http.ResponseWriter, r *http.Request, metricas *Metricas) {
+	ObterMetricas(w, r, metricas)
 }

@@ -1,24 +1,24 @@
 package produto
 
-type ListaProdutos []Produto // ver de fzr um sruct
-
-// recebe produto e coloca na lsita
-func (lp *ListaProdutos) AdicionarProduto(produto Produto) {
-	*lp = append(*lp, produto)
+type ListaProdutos struct {
+	Produtos []Produto
 }
 
-// tira da lista pelo id
+func (lp *ListaProdutos) AdicionarProduto(produto Produto) {
+	lp.Produtos = append(lp.Produtos, produto)
+}
+
 func (lp *ListaProdutos) RemoverProduto(id int) {
-	for i, produto := range *lp {
+	for i, produto := range lp.Produtos {
 		if produto.ID == id {
-			*lp = append((*lp)[:i], (*lp)[i+1:]...)
+			lp.Produtos = append((lp.Produtos)[:i], (lp.Produtos)[i+1:]...)
 			break
 		}
 	}
 }
 
 func (lp ListaProdutos) BuscarProdutoByID(id int) (Produto, bool) {
-	for _, produto := range lp {
+	for _, produto := range lp.Produtos {
 		if produto.ID == id {
 			return produto, true
 		}
@@ -26,6 +26,6 @@ func (lp ListaProdutos) BuscarProdutoByID(id int) (Produto, bool) {
 	return Produto{}, false
 }
 
-func (lp ListaProdutos) ListarProdutos() ListaProdutos {
-	return lp
+func (lp ListaProdutos) ListarProdutos() []Produto {
+	return lp.Produtos
 }

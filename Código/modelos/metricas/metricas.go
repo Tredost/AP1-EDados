@@ -1,6 +1,6 @@
 package metricas
 
-type Métricas struct {
+type Metricas struct {
 	TotalProdutos     int     `json:"total_produtos"`
 	PedidosEncerrados int     `json:"pedidos_encerrados"`
 	PedidosAndamento  int     `json:"pedidos_andamento"`
