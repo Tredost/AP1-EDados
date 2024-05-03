@@ -43,7 +43,7 @@ func ObterMetricas(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Metricas)
 }
 
-func AtualizarMetricas() { // PQ N VAAAAAAAAAAAAAAAAAAAAAIIIIIIIII
+func AtualizarMetricas() {
 	Metricas.TotalProdutos = len(ListaProdutos)
 	Metricas.PedidosAndamento = len(FilaPedidos)
 }
@@ -177,4 +177,32 @@ func (lp pe.FilaPedidos) PedidosEmAberto() []pe.Pedido {
 		}
 	}
 	return pedidosAbertos
+}
+
+// lista produtos
+
+func (lp *pr.ListaProdutos) AdicionarProduto(produto pr.Produto) {
+	lp.Produtos = append(lp.Produtos, produto)
+}
+
+func (lp *pr.ListaProdutos) RemoverProduto(id int) {
+	for i, produto := range lp.Produtos {
+		if produto.ID == id {
+			lp.Produtos = append((lp.Produtos)[:i], (lp.Produtos)[i+1:]...)
+			break
+		}
+	}
+}
+
+func (lp pr.ListaProdutos) BuscarProdutoByID(id int) (pr.Produto, bool) {
+	for _, produto := range lp.Produtos {
+		if produto.ID == id {
+			return produto, true
+		}
+	}
+	return pr.Produto{}, false
+}
+
+func (lp pr.ListaProdutos) ListarProdutos() []pr.Produto {
+	return lp.Produtos
 }

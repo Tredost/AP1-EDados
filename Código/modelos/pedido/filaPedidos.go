@@ -1,5 +1,3 @@
 package IANZINHO
 
-type FilaPedidos struct {
-	Pedidos []Pedido
-}
+type FilaPedidos []Pedido
