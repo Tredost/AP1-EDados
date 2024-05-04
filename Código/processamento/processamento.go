@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -25,7 +24,6 @@ var (
 
 func AbrirLoja(w http.ResponseWriter, r *http.Request) {
 	LojaAberta = true
-	go pe.FPedidos.ExpedirPedido()
 	fmt.Fprintln(w, "Loja aberta")
 }
 
@@ -61,7 +59,7 @@ func IncluirPedido(w http.ResponseWriter, r *http.Request) {
 		}
 		valorTotal += produto.Valor * float64(qp.Quantidade)
 	}
-
+	fmt.Fprintln(w, "Pedido incluído")
 	pedido.ID = PedidoID
 	PedidoID++
 
@@ -91,15 +89,10 @@ func ProcessarPedidos() {
 			pedidosAtivos := pe.FPedidos.PedidosEmAberto()
 			if len(pedidosAtivos) > 0 {
 				pe.FPedidos.ExpedirPedido()
-			} else {
-				fmt.Println("Não há pedidos ativos")
 			}
-			time.Sleep(30 * time.Second)
 		}
 	}
 }
-
-// produtos
 
 func AdicionarProduto(w http.ResponseWriter, r *http.Request) {
 	var Produto pr.Produto
@@ -108,6 +101,7 @@ func AdicionarProduto(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	fmt.Fprintln(w, "Produto adicionado")
 	Produto.ID = ProdutoID
 	ProdutoID++
 	ListaProdutos.AdicionarProduto(Produto)
@@ -139,6 +133,7 @@ func RemoverProduto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ListaProdutos.RemoverProduto(id)
+	fmt.Fprintln(w, "Produto removido")
 	w.WriteHeader(http.StatusNoContent)
 }
 

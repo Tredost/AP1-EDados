@@ -15,6 +15,7 @@ func (lp *ListaProdutos) RemoverProduto(id int) {
 	for i, produto := range *lp {
 		if produto.ID == id {
 			*lp = append((*lp)[:i], (*lp)[i+1:]...)
+			metricas.MMetricas.TotalProdutos--
 			break
 		}
 	}

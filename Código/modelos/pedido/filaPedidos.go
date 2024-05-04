@@ -2,6 +2,7 @@ package IANZINHO
 
 import (
 	"IANZINHO/modelos/metricas"
+	"time"
 )
 
 type FilaPedidos []Pedido
@@ -25,6 +26,7 @@ func (fp FilaPedidos) PedidosEmAberto() []Pedido {
 
 func (fp *FilaPedidos) ExpedirPedido() {
 	if len(*fp) > 0 {
+		time.Sleep(30 * time.Second)
 		*fp = (*fp)[1:]
 		metricas.MMetricas.PedidosEncerrados++
 		metricas.MMetricas.PedidosAndamento--
