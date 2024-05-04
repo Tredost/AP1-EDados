@@ -19,12 +19,12 @@ type Produto struct {
 type Pedido struct {
 	ID          int                    `json:"id"`
 	Delivery    bool                   `json:"delivery"`
-	Produtos    []QuantidadeProduto    `json:"produtos"`  
+	Produtos    []QuantidadeProduto    `json:"produtos"`
 	ValorTotal  float64                `json:"valor_total"`
 }
 
 type QuantidadeProduto struct {
-	ID         int `json:"id"` 
+	ID         int `json:"id"`
 	Quantidade int `json:"quantidade"`
 }
 
@@ -42,8 +42,8 @@ type FilaPedidos []Pedido // ver de fzr um sruct
 var (
 	listaProdutos ListaProdutos
 	filaPedidos   FilaPedidos
-	produtoID     int = 1 
-	pedidoID      int = 1 
+	produtoID     int = 1
+	pedidoID      int = 1
 	métricas      Métricas
 	lojaAberta    bool
 )
@@ -53,7 +53,7 @@ func (lp *ListaProdutos) AdicionarProduto(produto Produto) {
 	*lp = append(*lp, produto)
 }
 
-// tira da lista pelo id 
+// tira da lista pelo id
 func (lp *ListaProdutos) RemoverProduto(id int) {
 	for i, produto := range *lp {
 		if produto.ID == id {
@@ -88,13 +88,6 @@ func (fp FilaPedidos) PedidosEmAberto() FilaPedidos {
 		}
 	}
 	return pedidosAbertos
-}
-
-func (fp *FilaPedidos) ExpedirPedido() {
-	if len(*fp) > 0 {
-		*fp = (*fp)[1:] // remove o primeiro pedido da fila
-		métricas.PedidosEncerrados++
-	}
 }
 
 func handleAdicionarProduto(w http.ResponseWriter, r *http.Request) {
@@ -221,7 +214,10 @@ func expedirPedidos() {
 		pedidosAtivos := filaPedidos.PedidosEmAberto()
 		if len(pedidosAtivos) > 0 {
 			time.Sleep(30 * time.Second)
-			filaPedidos.ExpedirPedido()
+			if len(filaPedidos) > 0 {
+				filaPedidos = filaPedidos[1:] // remove o primeiro pedido da fila
+				métricas.PedidosEncerrados++
+			}
 		}
 	}
 }
