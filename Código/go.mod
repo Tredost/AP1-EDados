@@ -1,5 +1,5 @@
 module IANZINHO
 
-go 1.22.2
+go 1.21.7
 
 require github.com/gorilla/mux v1.8.1
