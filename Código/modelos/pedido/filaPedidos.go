@@ -1,14 +1,16 @@
 package IANZINHO
 
 import (
-	p "IANZINHO/processamento"
-	"time"
+	"IANZINHO/modelos/metricas"
 )
 
 type FilaPedidos []Pedido
 
+var FPedidos FilaPedidos
+
 func (fp *FilaPedidos) IncluirPedido(pedido Pedido) {
 	*fp = append(*fp, pedido)
+	metricas.MMetricas.PedidosAndamento++
 }
 
 func (fp FilaPedidos) PedidosEmAberto() []Pedido {
@@ -23,17 +25,8 @@ func (fp FilaPedidos) PedidosEmAberto() []Pedido {
 
 func (fp *FilaPedidos) ExpedirPedido() {
 	if len(*fp) > 0 {
-		*fp = (*fp)[1:] // remove o primeiro pedido da fila
-		p.Metricas.PedidosEncerrados++
-	}
-}
-
-func ExpedirPedidos() {
-	for p.LojaAberta {
-		pedidosAtivos := FilaPedidos.PedidosEmAberto()
-		if len(pedidosAtivos) > 0 {
-			time.Sleep(30 * time.Second)
-			FilaPedidos.ExpedirPedido()
-		}
+		*fp = (*fp)[1:]
+		metricas.MMetricas.PedidosEncerrados++
+		metricas.MMetricas.PedidosAndamento--
 	}
 }

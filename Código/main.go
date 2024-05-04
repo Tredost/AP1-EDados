@@ -19,5 +19,6 @@ func main() {
 	r.HandleFunc("/abrir", p.AbrirLoja).Methods("POST")
 	r.HandleFunc("/fechar", p.FecharLoja).Methods("POST")
 	r.HandleFunc("/metricas", p.ObterMetricas).Methods("GET")
+	go p.ProcessarPedidos()
 	http.ListenAndServe(":8080", r)
 }

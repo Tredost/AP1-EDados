@@ -1,9 +1,14 @@
 package IANZINHO
 
+import (
+	"IANZINHO/modelos/metricas"
+)
+
 type ListaProdutos []Produto
 
 func (lp *ListaProdutos) AdicionarProduto(produto Produto) {
 	*lp = append(*lp, produto)
+	metricas.MMetricas.TotalProdutos++
 }
 
 func (lp *ListaProdutos) RemoverProduto(id int) {

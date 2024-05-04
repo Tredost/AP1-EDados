@@ -1,14 +1,14 @@
 package IANZINHO
 
 import (
+	"IANZINHO/modelos/metricas"
+	pe "IANZINHO/modelos/pedido"
+	pr "IANZINHO/modelos/produto"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
-
-	m "IANZINHO/modelos/metricas"
-	pe "IANZINHO/modelos/pedido"
-	pr "IANZINHO/modelos/produto"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -18,7 +18,6 @@ var (
 	FilaPedidos   pe.FilaPedidos
 	ProdutoID     int = 1
 	PedidoID      int = 1
-	Metricas      m.Metricas
 	LojaAberta    bool
 )
 
@@ -26,7 +25,7 @@ var (
 
 func AbrirLoja(w http.ResponseWriter, r *http.Request) {
 	LojaAberta = true
-	go pe.ExpedirPedidos()
+	go pe.FPedidos.ExpedirPedido()
 	fmt.Fprintln(w, "Loja aberta")
 }
 
@@ -38,13 +37,9 @@ func FecharLoja(w http.ResponseWriter, r *http.Request) {
 // metricas
 
 func ObterMetricas(w http.ResponseWriter, r *http.Request) {
-	AtualizarMetricas()
-	json.NewEncoder(w).Encode(Metricas)
-}
-
-func AtualizarMetricas() {
-	Metricas.TotalProdutos = len(ListaProdutos)
-	Metricas.PedidosAndamento = len(FilaPedidos)
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(metricas.MMetricas)
 }
 
 //pedidos
@@ -75,14 +70,14 @@ func IncluirPedido(w http.ResponseWriter, r *http.Request) {
 	}
 	pedido.ValorTotal = valorTotal
 
-	FilaPedidos.IncluirPedido(pedido) //ERRADOOOOOOOOOOOOOOOOO
-	Metricas.FaturamentoTotal += pedido.ValorTotal
+	pe.FPedidos.IncluirPedido(pedido)
+	metricas.MMetricas.FaturamentoTotal += pedido.ValorTotal
 
 	w.WriteHeader(http.StatusCreated)
 }
 
 func ObterPedidosAtivos(w http.ResponseWriter, r *http.Request) {
-	pedidosAtivos := FilaPedidos.PedidosEmAberto()
+	pedidosAtivos := pe.FPedidos.PedidosEmAberto()
 	if len(pedidosAtivos) == 0 {
 		fmt.Fprintln(w, "Não há pedidos ativos")
 		return
@@ -90,22 +85,19 @@ func ObterPedidosAtivos(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(pedidosAtivos)
 }
 
-/*func (fp *pe.FilaPedidos) ExpedirPedido() {
-	if len(*fp) > 0 {
-		*fp = (*fp)[1:] // remove o primeiro pedido da fila
-		Metricas.PedidosEncerrados++
-	}
-}
-
-func ExpedirPedidos() {
-	for LojaAberta {
-		pedidosAtivos := FilaPedidos.PedidosEmAberto()
-		if len(pedidosAtivos) > 0 {
+func ProcessarPedidos() {
+	for {
+		if LojaAberta {
+			pedidosAtivos := pe.FPedidos.PedidosEmAberto()
+			if len(pedidosAtivos) > 0 {
+				pe.FPedidos.ExpedirPedido()
+			} else {
+				fmt.Println("Não há pedidos ativos")
+			}
 			time.Sleep(30 * time.Second)
-			FilaPedidos.ExpedirPedido()
 		}
 	}
-}*/
+}
 
 // produtos
 
@@ -116,7 +108,7 @@ func AdicionarProduto(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	ProdutoID := Produto.ID
+	Produto.ID = ProdutoID
 	ProdutoID++
 	ListaProdutos.AdicionarProduto(Produto)
 	w.WriteHeader(http.StatusCreated)
@@ -130,7 +122,7 @@ func ObterProduto(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
-	produto, encontrado := ListaProdutos.BuscarProdutoByID(id) //TA ERRADO
+	produto, encontrado := ListaProdutos.BuscarProdutoByID(id)
 	if !encontrado {
 		http.Error(w, "Produto não encontrado", http.StatusNotFound)
 		return

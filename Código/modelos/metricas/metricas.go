@@ -6,3 +6,5 @@ type Metricas struct {
 	PedidosAndamento  int     `json:"pedidos_andamento"`
 	FaturamentoTotal  float64 `json:"faturamento_total"`
 }
+
+var MMetricas Metricas
