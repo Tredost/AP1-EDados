@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	m "IANZINHO/modelos/metricas"
 	pe "IANZINHO/modelos/pedido"
@@ -27,7 +26,7 @@ var (
 
 func AbrirLoja(w http.ResponseWriter, r *http.Request) {
 	LojaAberta = true
-	go ExpedirPedidos()
+	go pe.ExpedirPedidos()
 	fmt.Fprintln(w, "Loja aberta")
 }
 
@@ -91,6 +90,13 @@ func ObterPedidosAtivos(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(pedidosAtivos)
 }
 
+/*func (fp *pe.FilaPedidos) ExpedirPedido() {
+	if len(*fp) > 0 {
+		*fp = (*fp)[1:] // remove o primeiro pedido da fila
+		Metricas.PedidosEncerrados++
+	}
+}
+
 func ExpedirPedidos() {
 	for LojaAberta {
 		pedidosAtivos := FilaPedidos.PedidosEmAberto()
@@ -99,7 +105,7 @@ func ExpedirPedidos() {
 			FilaPedidos.ExpedirPedido()
 		}
 	}
-}
+}*/
 
 // produtos
 
@@ -151,58 +157,4 @@ func ObterTodosProdutos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewEncoder(w).Encode(produtos)
-}
-
-// fila de pedidos
-
-func (fp *pe.FilaPedidos) IncluirPedido(pedido pe.Pedido) {
-	fp.Pedidos = append(fp.Pedidos, pedido)
-}
-
-func (fp *pe.FilaPedidos) ExpedirPedido() {
-	for LojaAberta {
-		pedidosAtivos := FilaPedidos.PedidosEmAberto()
-		if len(pedidosAtivos) > 0 {
-			time.Sleep(30 * time.Second)
-			FilaPedidos.ExpedirPedido()
-		}
-	}
-}
-
-func (lp pe.FilaPedidos) PedidosEmAberto() []pe.Pedido {
-	var pedidosAbertos []pe.Pedido
-	for _, pedido := range lp.Pedidos {
-		if pedido.Delivery || len(pedido.Produtos) > 0 {
-			pedidosAbertos = append(pedidosAbertos, pedido)
-		}
-	}
-	return pedidosAbertos
-}
-
-// lista produtos
-
-func (lp *pr.ListaProdutos) AdicionarProduto(produto pr.Produto) {
-	lp.Produtos = append(lp.Produtos, produto)
-}
-
-func (lp *pr.ListaProdutos) RemoverProduto(id int) {
-	for i, produto := range lp.Produtos {
-		if produto.ID == id {
-			lp.Produtos = append((lp.Produtos)[:i], (lp.Produtos)[i+1:]...)
-			break
-		}
-	}
-}
-
-func (lp pr.ListaProdutos) BuscarProdutoByID(id int) (pr.Produto, bool) {
-	for _, produto := range lp.Produtos {
-		if produto.ID == id {
-			return produto, true
-		}
-	}
-	return pr.Produto{}, false
-}
-
-func (lp pr.ListaProdutos) ListarProdutos() []pr.Produto {
-	return lp.Produtos
 }
